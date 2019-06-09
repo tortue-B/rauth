@@ -183,8 +183,8 @@ class OAuth1Session(RauthSession):
         if header_auth and 'oauth_signature' not in \
                 req_kwargs['headers'].get('Authorization', ''):
             req_kwargs['auth'] = OAuth1Auth(oauth_params, realm)
-        elif entity_method and 'oauth_signature' not in \
-                (req_kwargs.get('data') or {}):
+        elif entity_method and not isinstance(req_kwargs.get('data'), bytes) \
+                and 'oauth_signature' not in (req_kwargs.get('data') or {}):
             req_kwargs['data'] = req_kwargs.get('data') or {}
 
             # If we have a urlencoded entity-body we should pass the OAuth
@@ -225,7 +225,7 @@ class OAuth1Session(RauthSession):
         for oauth_param in OPTIONAL_OAUTH_PARAMS:
             if oauth_param in params:
                 oauth_params[oauth_param] = params.pop(oauth_param)
-            if oauth_param in data:
+            if not isinstance(data, bytes) and oauth_param in data:
                 oauth_params[oauth_param] = data.pop(oauth_param)
 
             if params:
